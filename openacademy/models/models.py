@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions, _
 import time
 from psycopg2 import IntegrityError
 from datetime import timedelta
@@ -37,11 +37,11 @@ class Course(models.Model):
         if default is None:
             default = {}
         copied_count = self.search_count([
-            ('name','ilike','Copy of %s%%' % (self.name))])
+            ('name','ilike', _('Copy of %s%%') % (self.name))])
         if not copied_count:
-            new_name = "Copy of %s" % (self.name)
+            new_name = _("Copy of %s") % (self.name)
         else:
-            new_name = "Copy of %s (%s)" % (self.name, copied_count)
+            new_name = _("Copy of %s (%s)") % (self.name, copied_count)
         default['name'] = new_name
         # default['name'] = self.name + ' otro'
         # try:
@@ -114,8 +114,8 @@ class Session(models.Model):
             self.active = False
             return {
                     'warning':{
-                        'title': "Incorrect 'seat' value",
-                        'message': "The number of available seats my not be negative",
+                        'title': _("Incorrect 'seat' value"),
+                        'message': _("The number of available seats my not be negative"),
                         }
                     }
         if self.seats < len(self.attendee_ids):
