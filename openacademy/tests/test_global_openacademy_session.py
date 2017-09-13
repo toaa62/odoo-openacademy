@@ -3,6 +3,7 @@
 from odoo.tests.common import TransactionCase
 from odoo.exceptions import ValidationError
 
+
 class GlobalTestOpenAcademySession(TransactionCase):
     '''
     This create global test to sessions
@@ -22,17 +23,18 @@ class GlobalTestOpenAcademySession(TransactionCase):
         '''
         Check that raise of 'A session's instructor can't be an attendee'
         '''
+
         with self.assertRaisesRegexp(
-                ValidationError,
-                "A session's instructor can't be an attendee"
-                ):
+            ValidationError,
+            "A session's instructor can't be an attendee"
+            ):
             self.session.create({
                 'name': 'Session test 1',
                 'seats': 1,
                 'instructor_id': self.partner_test.id,
-                'attendee_ids': [(6,0,[self.partner_test.id])],
+                'attendee_ids': [(6, 0, [self.partner_test.id])],
                 'course_id': self.course.id,
-            })
+                })
 
 
 

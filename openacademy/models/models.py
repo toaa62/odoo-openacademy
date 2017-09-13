@@ -15,30 +15,29 @@ class Course(models.Model):
     name = fields.Char(string="Title", required=True)
     description = fields.Text()
     responsible_id = fields.Many2one(
-            'res.users', string="Responsible",
-            index=True, ondelete='set null',
-            # default=lambda self, *a: self.env.uid)
-            default=get_uid)
-    session_ids = fields.One2many('openacademy.session','course_id')
+        'res.users', string="Responsible",
+        index=True, ondelete='set null',
+        # default=lambda self, *a: self.env.uid)
+        default=get_uid)
+    session_ids = fields.One2many('openacademy.session', 'course_id')
 
     _sql_constraints = [
-            ('name_description_check',
-                'CHECK(name != description)',
-                "The title of the course should not be the description"
-
-                ),
-            ('name_unique',
-                'UNIQUE(name)',
-                "the course title must be unique",
-                ),
-            ]
+        ('name_description_check',
+         'CHECK(name != description)',
+         "The title of the course should not be the description"
+        ),
+        ('name_unique',
+         'UNIQUE(name)',
+         "the course title must be unique",
+        ),
+    ]
 
     def copy(self, default=None):
-        print "estoy pasando por la función heredada de copy en cursos"
+        # print "estoy pasando por la función heredada de copy en cursos"
         if default is None:
             default = {}
         copied_count = self.search_count([
-            ('name','ilike', _('Copy of %s%%') % (self.name))])
+            ('name', 'ilike', _('Copy of %s%%') % (self.name))])
         if not copied_count:
             new_name = _("Copy of %s") % (self.name)
         else:
@@ -56,22 +55,23 @@ class Session(models.Model):
     name = fields.Char(required=True)
     start_date = fields.Date(default=fields.Date.today)
     datetime_test = fields.Datetime(default=fields.Datetime.now)
-    duration = fields.Float(digits=(6,2), help="Duration in days")
+    duration = fields.Float(digits=(6, 2), help="Duration in days")
     seats = fields.Integer(string="Number of seats")
     instructor_id = fields.Many2one('res.partner', string='Instructor',
-            domain=['|', ('instructor', '=', True), ('category_id.name', 'ilike', 'Teacher')])
+                                    domain=['|', ('instructor', '=', True),
+                                            ('category_id.name', 'ilike', 'Teacher')])
     course_id = fields.Many2one('openacademy.course', ondelete='cascade',
                                 string="Course", required=True)
     attendee_ids = fields.Many2many('res.partner', string="Attendees")
     taken_seats = fields.Float(compute='_taken_seats', store=True)
     active = fields.Boolean(default=True)
     end_date = fields.Date(store=True, compute='_get_end_date',
-                            inverse='_set_end_date')
+                           inverse='_set_end_date')
     attendees_count = fields.Integer(compute='_get_attendees_count', store=True)
     color = fields.Float()
     hours = fields.Float(
-            string="Duration in hours",
-            compute='_get_hours', inverse='_set_hours')
+        string="Duration in hours",
+        compute='_get_hours', inverse='_set_hours')
 
     @api.depends('duration')
     def _get_hours(self):
@@ -114,19 +114,19 @@ class Session(models.Model):
         if self.filtered(lambda r: r.seats < 0):
             self.active = False
             return {
-                    'warning':{
-                        'title': _("Incorrect 'seat' value"),
-                        'message': _("The number of available seats my not be negative"),
-                        }
+                'warning':{
+                    'title': _("Incorrect 'seat' value"),
+                    'message': _("The number of available seats my not be negative"),
                     }
+                }
         if self.seats < len(self.attendee_ids):
             self.active = False
             return {
-                    'warning':{
-                        'title': "Too many attendees",
-                        'message': "Increase seats or remove excess attendees",
-                        }
+                'warning':{
+                    'title': "Too many attendees",
+                    'message': "Increase seats or remove excess attendees",
                     }
+                }
         self.active = True
 
     @api.constrains('instructor_id', 'attendee_ids')
@@ -134,5 +134,4 @@ class Session(models.Model):
         for record in self.filtered('instructor_id'):
             if record.instructor_id in record.attendee_ids:
                 raise exceptions.ValidationError(
-                        "A session's instructor can't be an attendee"
-                        )
+                    "A session's instructor can't be an attendee")
