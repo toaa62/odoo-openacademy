@@ -2,6 +2,7 @@
 
 from odoo import api, models
 
+
 class ReportSession(models.AbstractModel):
     _name = 'report.openacademy.report_session_view'
 
