@@ -108,8 +108,8 @@ class Session(models.Model):
             if not record.seats:
                 record.taken_seats = 0
             else:
-                record.taken_seats = (100.0 * len(record.attendee_ids)
-                                      / record.seats)
+                record.taken_seats = (100.0 *
+                                      len(record.attendee_ids) / record.seats)
 
     @api.onchange('seats', 'attendee_ids')
     def _verify_valid_seat(self):
